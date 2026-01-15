@@ -7,10 +7,10 @@
     <style>
         :root {
             --bg-color: #050505;
-            --card-bg: rgba(255, 255, 255, 0.03);
-            --accent: #2FB0C2;
+            --card-bg: rgba(20, 20, 20, 0.4);
+            --accent: #2FB0C2; /* The user-defined accent */
             --text-main: #ffffff;
-            --text-muted: #a0a0a0;
+            --text-muted: #8892b0;
             --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
@@ -22,358 +22,417 @@
             color: var(--text-main);
             font-family: var(--font-main);
             line-height: 1.6;
-            padding-bottom: 50px;
             overflow-x: hidden;
+            position: relative;
         }
 
-        /* --- ORGANIC BACKGROUND ANIMATION --- */
-        .background-container {
+        /* --- CANVAS BACKGROUND --- */
+        #liquid-canvas {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: -1;
-            overflow: hidden;
-            background: #080808;
+            /* Subtle blur to make the liquid look glowing/soft */
+            filter: blur(1px); 
         }
 
-        .blob {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.6;
-            mix-blend-mode: screen;
-            animation: float 20s infinite ease-in-out alternate;
-        }
-
-        /* Blob 1: Top Left - Cyan Accent */
-        .blob:nth-child(1) {
-            background: var(--accent);
-            width: 500px;
-            height: 500px;
-            left: -100px;
-            top: -100px;
-            animation-duration: 25s;
-        }
-
-        /* Blob 2: Bottom Right - Darker Blue/Purple to add depth */
-        .blob:nth-child(2) {
-            background: #4b2fc2;
-            width: 600px;
-            height: 600px;
-            right: -100px;
-            bottom: -100px;
-            animation-duration: 30s;
-            animation-delay: -5s;
-        }
-
-        /* Blob 3: Floating Middle - Lighter Cyan */
-        .blob:nth-child(3) {
-            background: #2f8bc2;
-            width: 400px;
-            height: 400px;
-            left: 30%;
-            top: 40%;
-            animation-duration: 22s;
-            animation-delay: -10s;
-            opacity: 0.4;
-        }
-
-        @keyframes float {
-            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
-            33% { transform: translate(50px, -50px) scale(1.1) rotate(20deg); }
-            66% { transform: translate(-30px, 40px) scale(0.9) rotate(-10deg); }
-            100% { transform: translate(20px, -20px) scale(1.05) rotate(10deg); }
-        }
-        /* ------------------------------------ */
-
-        /* Header / Hero Section */
+        /* --- LAYOUT & TYPOGRAPHY --- */
         header {
             text-align: center;
-            padding: 100px 20px 60px;
+            padding: 120px 20px 80px;
             max-width: 800px;
             margin: 0 auto;
-            /* Animation for load */
-            opacity: 0;
-            animation: fadeInDown 1s ease-out forwards;
+            position: relative;
+            z-index: 2;
         }
 
-        h1 { font-size: 3.5rem; margin-bottom: 10px; font-weight: 800; letter-spacing: -1px; }
-        .subtitle { color: var(--accent); font-size: 1.1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; display: block;}
-        .bio { color: var(--text-muted); margin-top: 20px; font-size: 1.1rem; max-width: 600px; margin-left: auto; margin-right: auto; }
-
-        /* Container */
-        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; z-index: 2; position: relative;}
-
-        /* Featured Section (Onigiri) */
-        .featured-section {
-            background: rgba(20, 20, 20, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 24px;
-            padding: 50px;
-            margin-bottom: 80px;
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            
-            /* Initial State for Scroll Animation */
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s ease-out;
+        h1 { 
+            font-size: 4rem; 
+            margin-bottom: 15px; 
+            font-weight: 800; 
+            letter-spacing: -2px;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         
-        /* Class added by JS when visible */
-        .featured-section.visible { opacity: 1; transform: translateY(0); }
+        .subtitle { 
+            color: var(--accent); 
+            font-size: 1rem; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            letter-spacing: 3px; 
+            margin-bottom: 15px; 
+            display: block;
+        }
+        
+        .bio { 
+            color: var(--text-muted); 
+            margin-top: 25px; 
+            font-size: 1.2rem; 
+            max-width: 550px; 
+            margin-left: auto; 
+            margin-right: auto; 
+            line-height: 1.8;
+        }
+
+        .container { 
+            max-width: 1100px; 
+            margin: 0 auto; 
+            padding: 0 30px; 
+            z-index: 2; 
+            position: relative;
+        }
+
+        /* --- FEATURED SECTION (Glassmorphism) --- */
+        .featured-section {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 30px;
+            padding: 60px;
+            margin-bottom: 100px;
+            text-align: center;
+            transition: transform 0.5s ease;
+        }
+
+        .featured-section:hover {
+            border-color: rgba(47, 176, 194, 0.2);
+            box-shadow: 0 0 50px rgba(47, 176, 194, 0.05);
+        }
 
         .featured-tag {
-            background-color: var(--accent);
-            color: #000;
-            padding: 6px 14px;
+            background: rgba(47, 176, 194, 0.1);
+            color: var(--accent);
+            padding: 8px 16px;
             border-radius: 50px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 800;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
             display: inline-block;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(47, 176, 194, 0.2);
         }
 
-        .featured-title { font-size: 3rem; margin-bottom: 15px; font-weight: 700; }
-        .featured-desc { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 35px; max-width: 700px; margin-left: auto; margin-right: auto; }
+        .featured-title { font-size: 3.5rem; margin-bottom: 20px; font-weight: 800; }
+        .featured-desc { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 40px; max-width: 650px; margin-left: auto; margin-right: auto; }
         
+        /* Modern Button */
         .btn {
             display: inline-block;
-            background-color: var(--accent);
-            color: #050505;
-            padding: 14px 35px;
+            background: transparent;
+            color: var(--accent);
+            padding: 15px 40px;
             text-decoration: none;
             border-radius: 50px;
             font-weight: 700;
             font-size: 1rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(47, 176, 194, 0.3);
-        }
-        .btn:hover { 
-            background-color: #fff; 
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.2);
+            border: 2px solid var(--accent);
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
         }
 
-        /* Add-ons Grid */
-        .section-header { 
-            margin-bottom: 40px; 
-            opacity: 0; 
-            transform: translateY(20px); 
-            transition: all 0.6s ease-out; 
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 0%; height: 100%;
+            background: var(--accent);
+            z-index: -1;
+            transition: width 0.3s ease;
         }
-        .section-header.visible { opacity: 1; transform: translateY(0); }
-        .section-title { font-size: 1.8rem; font-weight: 700; }
+
+        .btn:hover { color: #000; }
+        .btn:hover::before { width: 100%; }
+
+        /* --- GRID --- */
+        .section-header { 
+            margin-bottom: 50px; 
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+        }
+        
+        .section-title { font-size: 1.5rem; font-weight: 700; color: #fff; }
+        .section-count { color: var(--text-muted); font-size: 0.9rem; }
         
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
         }
 
         .card {
             background-color: var(--card-bg);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 35px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            
-            /* Initial State */
-            opacity: 0;
-            transform: translateY(30px);
+            transition: transform 0.4s ease, background-color 0.4s ease;
+            position: relative;
+            overflow: hidden;
         }
-        
-        /* Visible State (staggered by JS) */
-        .card.visible { opacity: 1; transform: translateY(0); }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 4px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
 
         .card:hover { 
             transform: translateY(-10px); 
-            border-color: rgba(47, 176, 194, 0.4); 
-            background-color: rgba(47, 176, 194, 0.05);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            background-color: rgba(30, 30, 30, 0.8); 
         }
+        .card:hover::before { transform: scaleX(1); }
 
-        .card h3 { font-size: 1.3rem; margin-bottom: 12px; font-weight: 600; color: #fff; }
-        .card p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 25px; line-height: 1.5; }
+        .card h3 { font-size: 1.4rem; margin-bottom: 10px; font-weight: 700; color: #fff; }
+        .card p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 25px; line-height: 1.6; }
         
         .card-link {
-            color: var(--accent);
+            color: #fff;
             text-decoration: none;
             font-weight: 600;
-            font-size: 0.9rem;
-            display: inline-flex;
-            align-items: center;
-            transition: padding-left 0.2s;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
         }
-        .card-link:hover { padding-left: 5px; color: #fff; }
-        .card-link::after { content: '→'; margin-left: 5px; transition: margin-left 0.2s; }
-        .card-link:hover::after { margin-left: 8px; }
+        .card-link:hover { opacity: 1; color: var(--accent); }
 
         footer {
             text-align: center;
-            margin-top: 100px;
+            margin-top: 120px;
             color: var(--text-muted);
             font-size: 0.9rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
             padding-top: 40px;
-        }
-
-        /* Animations */
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+            opacity: 0.5;
         }
         
-        @media (max-width: 600px) {
-            h1 { font-size: 2.5rem; }
-            .featured-title { font-size: 2rem; }
-            header { padding-top: 60px; }
-            .featured-section { padding: 30px 20px; }
+        @media (max-width: 768px) {
+            h1 { font-size: 3rem; }
+            .featured-section { padding: 30px; }
+            .grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-    <div class="background-container">
-        <div class="blob"></div>
-        <div class="blob"></div>
-        <div class="blob"></div>
-    </div>
+    <canvas id="liquid-canvas"></canvas>
 
     <header>
-        <span class="subtitle">Anki Add-on Developer</span>
+        <span class="subtitle">Portfolio</span>
         <h1>Peace</h1>
-        <p class="bio">Building tools to modernize and gamify your study routine. Creator of Onigiri, Focumon, and more.</p>
+        <p class="bio">Add-on Developer for Anki. Creating tools like Onigiri and Focumon to modernize and gamify your study routine.</p>
     </header>
 
     <div class="container">
         
-        <section class="featured-section hidden-on-load">
-            <span class="featured-tag">Featured Project</span>
-            <h2 class="featured-title">🍙 Onigiri (Beta)</h2>
+        <section class="featured-section">
+            <span class="featured-tag">Latest Release</span>
+            <h2 class="featured-title">Onigiri</h2>
             <p class="featured-desc">
-                A more modern Anki for your studies. Onigiri redesigns the Anki interface to make it cleaner, more aesthetic, and more enjoyable to use every day.
+                A complete redesign of the Anki interface. Cleaner, aesthetic, and built to make daily reviews satisfying.
             </p>
             <div>
                 <a href="https://ankiweb.net/shared/info/1011095603" class="btn" target="_blank">View on AnkiWeb</a>
             </div>
         </section>
 
-        <div class="section-header hidden-on-load">
-            <h2 class="section-title">All Add-ons</h2>
+        <div class="section-header">
+            <h2 class="section-title">All Projects</h2>
+            <span class="section-count">09 items</span>
         </div>
 
         <div class="grid">
-            <div class="card hidden-on-load">
+            <div class="card">
                 <div>
-                    <h3>✨ Focumon</h3>
+                    <h3>Focumon</h3>
                     <p>Gamify your focus. Collect monsters and level up while you study.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/info/516325516" class="card-link" target="_blank">Get Add-on</a>
+                <a href="https://ankiweb.net/shared/info/516325516" class="card-link" target="_blank">Download</a>
             </div>
-            <div class="card hidden-on-load">
+            <div class="card">
                 <div>
                     <h3>Berry</h3>
                     <p>Check your Bluetooth devices directly from your Anki menu.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/info/73838120" class="card-link" target="_blank">Get Add-on</a>
+                <a href="https://ankiweb.net/shared/info/73838120" class="card-link" target="_blank">Download</a>
             </div>
-            <div class="card hidden-on-load">
+            <div class="card">
                 <div>
-                    <h3>🐰 lofi.town</h3>
-                    <p>Listen to lofi beats and relax in your virtual town while reviewing cards.</p>
+                    <h3>lofi.town</h3>
+                    <p>Listen to lofi beats and relax in your virtual town while reviewing.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/info/1799253175" class="card-link" target="_blank">Get Add-on</a>
+                <a href="https://ankiweb.net/shared/info/1799253175" class="card-link" target="_blank">Download</a>
             </div>
-             <div class="card hidden-on-load">
+             <div class="card">
                 <div>
                     <h3>Global</h3>
                     <p>Check your local weather without leaving Anki.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/info/519723565" class="card-link" target="_blank">Get Add-on</a>
+                <a href="https://ankiweb.net/shared/info/519723565" class="card-link" target="_blank">Download</a>
             </div>
-            <div class="card hidden-on-load">
+            <div class="card">
                 <div>
                     <h3>Hours</h3>
                     <p>A simple utility to check the time from your Anki menu.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/info/691162538" class="card-link" target="_blank">Get Add-on</a>
+                <a href="https://ankiweb.net/shared/info/691162538" class="card-link" target="_blank">Download</a>
             </div>
-            <div class="card hidden-on-load">
+            <div class="card">
                 <div>
                     <h3>Paper</h3>
                     <p>Multiple cheat sheets and scratchpads available while you study.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/info/1803057887" class="card-link" target="_blank">Get Add-on</a>
+                <a href="https://ankiweb.net/shared/info/1803057887" class="card-link" target="_blank">Download</a>
             </div>
-            <div class="card hidden-on-load">
+            <div class="card">
                 <div>
                     <h3>Power</h3>
                     <p>Monitor your laptop's battery life directly from Anki.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/info/643961895" class="card-link" target="_blank">Get Add-on</a>
+                <a href="https://ankiweb.net/shared/info/643961895" class="card-link" target="_blank">Download</a>
             </div>
-            <div class="card hidden-on-load">
+            <div class="card">
                 <div>
-                    <h3>🍵 Senchado</h3>
+                    <h3>Senchado</h3>
                     <p>A tea timer for your Anki sessions.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/info/585575504" class="card-link" target="_blank">Get Add-on</a>
+                <a href="https://ankiweb.net/shared/info/585575504" class="card-link" target="_blank">Download</a>
             </div>
-            <div class="card hidden-on-load">
+            <div class="card">
                 <div>
                     <h3>Sticky</h3>
                     <p>Write quick sticky notes on your Anki menu.</p>
                 </div>
-                <a href="https://ankiweb.net/shared/info/629799722" class="card-link" target="_blank">Get Add-on</a>
+                <a href="https://ankiweb.net/shared/info/629799722" class="card-link" target="_blank">Download</a>
             </div>
         </div>
     </div>
 
     <footer>
-        <p>&copy; 2025 Peace. All rights reserved.</p>
-        <p><a href="https://ankiweb.net/shared/by-author/73838120" style="color: #666; text-decoration: none;">View all on AnkiWeb</a></p>
+        <p>&copy; 2025 Peace.</p>
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
+        const canvas = document.getElementById('liquid-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let mouseX = 0, mouseY = 0;
+        let time = 0;
 
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach((entry, index) => {
-                    if (entry.isIntersecting) {
-                        // Add a slight delay based on index for the staggering effect
-                        // We check if it's a card to stagger them, otherwise show immediately
-                        if(entry.target.classList.contains('card')) {
-                            // Simple calculation to stagger grid items relative to their viewport position
-                            // We don't have the exact index in grid here easily without more complex logic,
-                            // so we use a small timeout to let the browser paint naturally.
-                            entry.target.classList.add('visible');
-                        } else {
-                            entry.target.classList.add('visible');
-                        }
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, observerOptions);
+        // Configuration for the blob
+        const blob = {
+            x: 0,
+            y: 0,
+            size: 350, // Base size
+            complexity: 0.5, // How "bumpy" it is
+            color: '#2FB0C2'
+        };
 
-            const elements = document.querySelectorAll('.featured-section, .section-header, .card');
-            elements.forEach(el => observer.observe(el));
+        // Resize handler
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            blob.x = width / 2;
+            blob.y = height / 2;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Mouse tracker
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
         });
+
+        // Math helper for smooth noise (Simplified Sine Summation)
+        // This simulates Perlin noise by adding multiple sine waves together
+        function noise(x, y, t) {
+            return Math.sin(x * 0.01 + t) + 
+                   Math.sin(y * 0.01 + t) * 0.5 + 
+                   Math.sin((x + y) * 0.01 + t * 1.5) * 0.25;
+        }
+
+        function drawBlob() {
+            // Clear screen with a slight fade for motion trails (optional, but clean clear is better for this style)
+            ctx.clearRect(0, 0, width, height);
+
+            // Move blob slightly towards mouse (smooth follow)
+            // Linear interpolation (lerp)
+            blob.x += (mouseX - blob.x) * 0.03;
+            blob.y += (mouseY - blob.y) * 0.03;
+
+            ctx.fillStyle = blob.color;
+            ctx.beginPath();
+
+            const numPoints = 150; // Resolution of the blob
+            const angleStep = (Math.PI * 2) / numPoints;
+
+            for (let i = 0; i <= numPoints; i++) {
+                const angle = i * angleStep;
+                
+                // Calculate basic circle point
+                const cos = Math.cos(angle);
+                const sin = Math.sin(angle);
+                
+                // Add noise to radius based on Angle and Time
+                // We use sine waves to offset the radius
+                const noiseVal = 
+                    Math.sin(angle * 3 + time) * 20 +    // Large wobbles
+                    Math.sin(angle * 7 - time * 2) * 15 + // Medium wobbles
+                    Math.sin(angle * 12 + time * 3) * 5;  // Small details
+
+                const radius = blob.size + noiseVal;
+
+                // Gradient offset based on mouse position to give 3D-ish feel
+                const x = blob.x + cos * radius;
+                const y = blob.y + sin * radius;
+
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+
+            ctx.closePath();
+
+            // Create a gradient fill to look like liquid light
+            const gradient = ctx.createRadialGradient(
+                blob.x - 50, blob.y - 50, 10, 
+                blob.x, blob.y, blob.size + 20
+            );
+            gradient.addColorStop(0, '#2FB0C2');      // Bright core
+            gradient.addColorStop(0.6, 'rgba(47, 176, 194, 0.4)'); // Mid
+            gradient.addColorStop(1, 'rgba(47, 176, 194, 0)');    // Fade out edge
+
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            
+            // Optional: Draw a thin line border for definition
+            ctx.strokeStyle = 'rgba(47, 176, 194, 0.1)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function animate() {
+            time += 0.03; // Speed of the wobble
+            drawBlob();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
     </script>
 </body>
 </html>
