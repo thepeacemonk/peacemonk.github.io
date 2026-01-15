@@ -8,7 +8,7 @@
         :root {
             --bg-color: #050505;
             --card-bg: rgba(20, 20, 20, 0.4);
-            --accent: #2FB0C2;
+            --accent: #2FB0C2; /* The user-defined accent */
             --text-main: #ffffff;
             --text-muted: #8892b0;
             --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -26,44 +26,19 @@
             position: relative;
         }
 
-        /* --- BACKGROUND CONTAINER --- */
-        #background-wrapper {
+        /* --- CANVAS BACKGROUND --- */
+        #liquid-canvas {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: -1;
-            background: #050505;
-            overflow: hidden;
-            /* This SVG filter creates the "gooey" liquid connection between blobs */
-            filter: url('#goo'); 
+            /* Subtle blur to make the liquid look glowing/soft */
+            filter: blur(1px); 
         }
 
-        .blob {
-            position: absolute;
-            background: var(--accent);
-            border-radius: 50%;
-            opacity: 0.8;
-            animation: move linear infinite;
-        }
-
-        /* Define different sizes and start positions for randomness */
-        .blob:nth-child(1) { width: 300px; height: 300px; left: 10%; top: 10%; animation-duration: 25s; opacity: 0.6; }
-        .blob:nth-child(2) { width: 400px; height: 400px; right: 20%; top: 40%; animation-duration: 35s; opacity: 0.5; }
-        .blob:nth-child(3) { width: 250px; height: 250px; left: 40%; bottom: 10%; animation-duration: 20s; opacity: 0.7; }
-        .blob:nth-child(4) { width: 200px; height: 200px; right: 10%; bottom: 20%; animation-duration: 28s; opacity: 0.4; }
-        .blob:nth-child(5) { width: 350px; height: 350px; left: 50%; top: 50%; animation-duration: 40s; opacity: 0.3; }
-        .blob:nth-child(6) { width: 150px; height: 150px; left: 5%; top: 80%; animation-duration: 22s; opacity: 0.6; }
-
-        @keyframes move {
-            0% { transform: translate(0, 0) rotate(0deg); }
-            33% { transform: translate(100px, -100px) rotate(120deg) scale(1.1); }
-            66% { transform: translate(-50px, 150px) rotate(240deg) scale(0.9); }
-            100% { transform: translate(0, 0) rotate(360deg); }
-        }
-
-        /* --- LAYOUT --- */
+        /* --- LAYOUT & TYPOGRAPHY --- */
         header {
             text-align: center;
             padding: 120px 20px 80px;
@@ -99,8 +74,6 @@
             margin-left: auto; 
             margin-right: auto; 
             line-height: 1.8;
-            /* Added slight background to make text readable over blobs */
-            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
         }
 
         .container { 
@@ -111,24 +84,26 @@
             position: relative;
         }
 
-        /* --- FEATURED SECTION --- */
+        /* --- FEATURED SECTION (Glassmorphism) --- */
         .featured-section {
-            background: rgba(10, 10, 10, 0.5); /* Darker backdrop for contrast */
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 30px;
             padding: 60px;
             margin-bottom: 100px;
             text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            transition: transform 0.3s ease;
+            transition: transform 0.5s ease;
         }
 
-        .featured-section:hover { transform: translateY(-5px); }
+        .featured-section:hover {
+            border-color: rgba(47, 176, 194, 0.2);
+            box-shadow: 0 0 50px rgba(47, 176, 194, 0.05);
+        }
 
         .featured-tag {
-            background: rgba(47, 176, 194, 0.15);
+            background: rgba(47, 176, 194, 0.1);
             color: var(--accent);
             padding: 8px 16px;
             border-radius: 50px;
@@ -138,26 +113,40 @@
             text-transform: uppercase;
             display: inline-block;
             margin-bottom: 25px;
-            border: 1px solid rgba(47, 176, 194, 0.3);
+            border: 1px solid rgba(47, 176, 194, 0.2);
         }
 
         .featured-title { font-size: 3.5rem; margin-bottom: 20px; font-weight: 800; }
         .featured-desc { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 40px; max-width: 650px; margin-left: auto; margin-right: auto; }
         
+        /* Modern Button */
         .btn {
             display: inline-block;
-            background: var(--accent);
-            color: #000;
+            background: transparent;
+            color: var(--accent);
             padding: 15px 40px;
             text-decoration: none;
             border-radius: 50px;
             font-weight: 700;
             font-size: 1rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 20px rgba(47, 176, 194, 0.4);
+            border: 2px solid var(--accent);
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
         }
 
-        .btn:hover { background: #fff; box-shadow: 0 0 30px rgba(255, 255, 255, 0.4); }
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 0%; height: 100%;
+            background: var(--accent);
+            z-index: -1;
+            transition: width 0.3s ease;
+        }
+
+        .btn:hover { color: #000; }
+        .btn:hover::before { width: 100%; }
 
         /* --- GRID --- */
         .section-header { 
@@ -179,35 +168,48 @@
         }
 
         .card {
-            background-color: rgba(20, 20, 20, 0.6);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background-color: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.03);
             border-radius: 20px;
             padding: 35px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            transition: transform 0.3s ease, background-color 0.3s ease;
+            transition: transform 0.4s ease, background-color 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 4px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
         }
 
         .card:hover { 
             transform: translateY(-10px); 
             background-color: rgba(30, 30, 30, 0.8); 
-            border-color: rgba(47, 176, 194, 0.3);
         }
+        .card:hover::before { transform: scaleX(1); }
 
         .card h3 { font-size: 1.4rem; margin-bottom: 10px; font-weight: 700; color: #fff; }
         .card p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 25px; line-height: 1.6; }
         
         .card-link {
-            color: var(--accent);
+            color: #fff;
             text-decoration: none;
             font-weight: 600;
             font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 1px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
         }
-        .card-link:hover { color: #fff; text-decoration: underline; }
+        .card-link:hover { opacity: 1; color: var(--accent); }
 
         footer {
             text-align: center;
@@ -227,28 +229,7 @@
 </head>
 <body>
 
-    <div id="background-wrapper">
-        <div class="blob"></div>
-        <div class="blob"></div>
-        <div class="blob"></div>
-        <div class="blob"></div>
-        <div class="blob"></div>
-        <div class="blob"></div>
-    </div>
-    
-    <svg style="position: fixed; top: 0; left: 0; width: 0; height: 0;">
-        <defs>
-            <filter id="goo">
-                <feGaussianBlur in="SourceGraphic" stdDeviation="40" result="blur" />
-                <feColorMatrix in="blur" mode="matrix" values="
-                    1 0 0 0 0  
-                    0 1 0 0 0  
-                    0 0 1 0 0  
-                    0 0 0 18 -7" result="goo" />
-                <feBlend in="SourceGraphic" in2="goo" />
-            </filter>
-        </defs>
-    </svg>
+    <canvas id="liquid-canvas"></canvas>
 
     <header>
         <span class="subtitle">Portfolio</span>
@@ -345,5 +326,113 @@
         <p>&copy; 2025 Peace.</p>
     </footer>
 
+    <script>
+        const canvas = document.getElementById('liquid-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let mouseX = 0, mouseY = 0;
+        let time = 0;
+
+        // Configuration for the blob
+        const blob = {
+            x: 0,
+            y: 0,
+            size: 350, // Base size
+            complexity: 0.5, // How "bumpy" it is
+            color: '#2FB0C2'
+        };
+
+        // Resize handler
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            blob.x = width / 2;
+            blob.y = height / 2;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Mouse tracker
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        // Math helper for smooth noise (Simplified Sine Summation)
+        // This simulates Perlin noise by adding multiple sine waves together
+        function noise(x, y, t) {
+            return Math.sin(x * 0.01 + t) + 
+                   Math.sin(y * 0.01 + t) * 0.5 + 
+                   Math.sin((x + y) * 0.01 + t * 1.5) * 0.25;
+        }
+
+        function drawBlob() {
+            // Clear screen with a slight fade for motion trails (optional, but clean clear is better for this style)
+            ctx.clearRect(0, 0, width, height);
+
+            // Move blob slightly towards mouse (smooth follow)
+            // Linear interpolation (lerp)
+            blob.x += (mouseX - blob.x) * 0.03;
+            blob.y += (mouseY - blob.y) * 0.03;
+
+            ctx.fillStyle = blob.color;
+            ctx.beginPath();
+
+            const numPoints = 150; // Resolution of the blob
+            const angleStep = (Math.PI * 2) / numPoints;
+
+            for (let i = 0; i <= numPoints; i++) {
+                const angle = i * angleStep;
+                
+                // Calculate basic circle point
+                const cos = Math.cos(angle);
+                const sin = Math.sin(angle);
+                
+                // Add noise to radius based on Angle and Time
+                // We use sine waves to offset the radius
+                const noiseVal = 
+                    Math.sin(angle * 3 + time) * 20 +    // Large wobbles
+                    Math.sin(angle * 7 - time * 2) * 15 + // Medium wobbles
+                    Math.sin(angle * 12 + time * 3) * 5;  // Small details
+
+                const radius = blob.size + noiseVal;
+
+                // Gradient offset based on mouse position to give 3D-ish feel
+                const x = blob.x + cos * radius;
+                const y = blob.y + sin * radius;
+
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+
+            ctx.closePath();
+
+            // Create a gradient fill to look like liquid light
+            const gradient = ctx.createRadialGradient(
+                blob.x - 50, blob.y - 50, 10, 
+                blob.x, blob.y, blob.size + 20
+            );
+            gradient.addColorStop(0, '#2FB0C2');      // Bright core
+            gradient.addColorStop(0.6, 'rgba(47, 176, 194, 0.4)'); // Mid
+            gradient.addColorStop(1, 'rgba(47, 176, 194, 0)');    // Fade out edge
+
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            
+            // Optional: Draw a thin line border for definition
+            ctx.strokeStyle = 'rgba(47, 176, 194, 0.1)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function animate() {
+            time += 0.03; // Speed of the wobble
+            drawBlob();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
 </body>
 </html>
